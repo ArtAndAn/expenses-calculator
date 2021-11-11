@@ -1,3 +1,98 @@
-h1 {
-    color: violet;
+body {
+    text-transform: uppercase;
+    font-family: Montserrat;
+    text-align: center;
+    background-color: #fffde7;
 }
+
+header {
+    align-items: center;
+    background-color: #292929;
+    font-family: Montserrat-SemiBold;
+}
+
+a:hover {
+    color: white !important;
+}
+
+hr {
+    border-radius: 50px;
+    width: 50%;
+}
+
+input {
+    text-align: center;
+}
+
+.header-logo {
+    margin-left: 1rem;
+}
+
+.header-logo-text {
+    display: inline-block;
+    margin-top: 7%;
+}
+
+.header-link {
+    color: white;
+}
+
+.header-line {
+    border-left: 1px solid white;
+    height: 2.5rem;
+}
+
+.register-link {
+    border: 2px solid white;
+    border-radius: 10px;
+    margin: 0 1rem 0 1rem;
+}
+
+.page-content {
+    display: grid;
+    justify-items: center;
+    width: 80%;
+    margin: 3rem auto 0;
+}
+
+.main-page-text {
+    width: 75%;
+}
+
+.form-check-input:checked {
+    background-color: black;
+    border-color: black;
+}
+
+.link {
+    border-radius: 10px;
+    background-color: #292929;
+    color: #fffde7;
+    padding: 5px 10px;
+    text-transform: uppercase;
+    border: 1px solid #fffde7;
+}
+
+.expenses-form-line {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-gap: 5px;
+    margin-bottom: 2rem;
+}
+
+.expenses-form-text {
+    padding-top: 3px;
+}
+
+.more-expenses-button {
+    display: block;
+    margin: auto;
+    border-radius: 10px;
+    background-color: #a9a89a;
+    color: #fffde7;
+    padding: 5px 10px;
+    text-transform: uppercase;
+    font-size: 70%;
+    border: 1px solid #fffde7;
+}
+

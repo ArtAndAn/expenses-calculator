@@ -1,9 +1,10 @@
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
-from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework import permissions
+from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView
 
 from .models import Category, UserExpenses
-from .serializers import ExpensesSerializer
+from .serializers import ExpensesSerializer, UserSerializer
 
 
 class SingleUserExpenses(RetrieveUpdateAPIView):
@@ -11,6 +12,12 @@ class SingleUserExpenses(RetrieveUpdateAPIView):
     queryset = UserExpenses.objects.all()
     serializer_class = ExpensesSerializer
     lookup_field = 'user_id'
+
+
+class CreateUser(CreateAPIView):
+    model = User
+    permission_classes = [permissions.AllowAny]
+    serializer_class = UserSerializer
 
 
 def data_check(request):

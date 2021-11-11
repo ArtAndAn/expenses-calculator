@@ -24,15 +24,20 @@
     <a href="/register" class="nav-link header-link register-link">Register</a>
 </header>
 <div class="page-content">
+    <h1>Login to your account</h1>
     <hr>
-    <h3 class="main-page-text my-4">Try our service to calculate your monthly expenses</h3>
-    <hr>
-    <h4 class="main-page-text my-4">
-        We will build beautiful charts for you <br>
-        and you can filter them by categories and dates</h4>
-    <hr>
-    <h5 class="main-page-text my-4">Check out all our possibilities by creating a new account</h5>
-    <a href="/register" class="link nav-link">Create an account</a>
+    <form>
+        <div class="form-outline">
+            <input type="text" id="form-username" class="form-control mb-1"/>
+            <label for="form-username" class="mb-3">Username</label>
+        </div>
+        <div class="form-outline mb-4">
+            <input type="password" id="form-password" class="form-control mb-1"/>
+            <label for="form-password">Password</label>
+        </div>
+
+        <button type="submit" class="link">Login</button>
+    </form>
     <hr>
 </div>
 </body>

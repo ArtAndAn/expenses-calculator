@@ -16,7 +16,7 @@ class UserExpenses(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank=False)
     category = models.ForeignKey(Category, default='Category was deleted', on_delete=models.SET_DEFAULT, blank=False)
     spend = models.IntegerField(blank=False)
-    last_updated = models.DateTimeField(auto_now=True)
+    date = models.DateTimeField(blank=True)  # TODO change to False
 
     class Meta:
         verbose_name_plural = 'UserExpenses'
