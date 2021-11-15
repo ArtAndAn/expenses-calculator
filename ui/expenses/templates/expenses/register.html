@@ -6,7 +6,8 @@
 <div class="page-content">
     <h1>Create an account</h1>
     <hr>
-    <form>
+    <form method="post">
+        {% csrf_token %}
         <div class="form-outline mb-4">
             <input type="text" id="form-username" class="form-control mb-1"/>
             <label for="form-username">Username</label>

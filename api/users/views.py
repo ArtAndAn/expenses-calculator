@@ -28,12 +28,10 @@ class LoginUser(APIView):
             pass  # TODO authorisation error
 
         login(request, user)
-        print(request.user.is_authenticated)
         return Response({'message': 'user logged in'})
 
 
 class LogoutUser(APIView):
     def get(self, request):
         logout(request)
-        print(request.user.is_authenticated)
         return Response({'message': 'user logged out'})
