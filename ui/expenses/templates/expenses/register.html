@@ -6,7 +6,7 @@
 <div class="page-content">
     <h1>Create an account</h1>
     <hr>
-    <form method="post">
+    <form method="post" action="/api/register" class="auth-form">
         {% csrf_token %}
         <div class="form-outline mb-4">
             <input type="text" id="form-username" class="form-control mb-1"/>
@@ -33,6 +33,10 @@
             <label class="form-check-label" for="form-agreement">
                 I have read and agree to the terms
             </label>
+        </div>
+
+        <div class="form-error-msg">
+            <p>Please, check your password</p>
         </div>
 
         <button type="submit" class="link">Register</button>

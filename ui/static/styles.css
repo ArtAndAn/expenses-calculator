@@ -96,3 +96,18 @@ input {
     border: 1px solid #fffde7;
 }
 
+.auth-form {
+    max-width: 28%;
+}
+
+.form-error-msg {
+    border: 3px solid #a95556;
+    padding: 3% 0 0;
+    margin-bottom: 5%;
+}
+
+.form-error-msg p {
+    margin-bottom: 3%;
+    color: #a90008;
+}
+
