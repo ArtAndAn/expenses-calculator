@@ -28,8 +28,6 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']  # TODO configure HOSTS
 CORS_ORIGIN_ALLOW_ALL = True  # TODO remove CORS
 
-
-
 # Application definition
 
 INSTALLED_APPS = [

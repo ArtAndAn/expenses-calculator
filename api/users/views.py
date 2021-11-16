@@ -19,9 +19,8 @@ class CreateUser(APIView):
             return Response(data={'message': 'registered'},
                             status=status.HTTP_201_CREATED)
         else:
-            resp = Response(data={'message': 'error', 'errors': serializer.errors},
+            return Response(data={'message': 'error', 'errors': serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)
-            return resp
 
 
 class LoginUser(APIView):
@@ -29,21 +28,39 @@ class LoginUser(APIView):
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        serializer.is_valid()
 
+        if not serializer.validated_data:
+            return Response(data={'message': 'error', 'errors': serializer.errors},
+                            status=status.HTTP_400_BAD_REQUEST)
         username = serializer.data['username']
         password = serializer.data['password']
 
         user = authenticate(username=username, password=password)
 
         if user is None:
-            pass  # TODO authorisation error
-
+            return Response(data={'message': 'error',
+                                  'errors': {'password': 'There is no user with such username and password.'}})
         login(request, user)
-        return Response({'message': 'user logged in'})
+        response = Response({'message': 'logged in'})
+        response.set_cookie('sessionid', request.session.session_key)
+        return response
 
 
 class LogoutUser(APIView):
     def get(self, request):
         logout(request)
-        return Response({'message': 'user logged out'})
+        return Response({'message': 'logged out'})
+
+
+class UserData(APIView):
+    def get(self, request):
+        user = request.user
+        return Response({'message': 'user data',
+                         'user': {'id': user.id,
+                                  'username': user.username,
+                                  'is_staff': user.is_staff,
+                                  'is_authenticated': user.is_authenticated,
+                                  'is_superuser': user.is_superuser
+                                  }
+                         })

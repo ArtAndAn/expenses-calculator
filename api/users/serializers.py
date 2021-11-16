@@ -4,6 +4,7 @@ from rest_framework.validators import UniqueValidator
 
 
 class RegisterSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(max_length=50)
     email = serializers.CharField(max_length=100,
                                   validators=[UniqueValidator(queryset=User.objects.all(),
                                                               message='This email is already taken')])
@@ -33,5 +34,5 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    password = serializers.CharField()
+    username = serializers.CharField(max_length=50, required=True)
+    password = serializers.CharField(max_length=50, required=True)
