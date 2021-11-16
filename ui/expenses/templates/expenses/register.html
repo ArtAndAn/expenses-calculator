@@ -6,41 +6,58 @@
 <div class="page-content">
     <h1>Create an account</h1>
     <hr>
-    <form method="post" action="/api/register" class="auth-form">
+    <form method="post" class="auth-form">
         {% csrf_token %}
-        <div class="form-outline mb-4">
-            <input type="text" id="form-username" class="form-control mb-1"/>
+        <div class="form-outline mb-4" id="username">
+            <input type="text" id="form-username" name="username" class="form-control mb-1" required/>
             <label for="form-username">Username</label>
         </div>
 
-        <div class="form-outline mb-4">
-            <input type="email" id="form-email" class="form-control mb-1"/>
+        <div class="form-outline mb-4" id="email">
+            <input type="email" id="form-email" name="email" class="form-control mb-1" required/>
             <label for="form-email">Email address</label>
         </div>
 
-        <div class="form-outline mb-4">
-            <input type="password" id="form-password" class="form-control mb-1"/>
+        <div class="form-outline mb-4" id="password">
+            <input type="password" id="form-password" name="password" class="form-control mb-1" required/>
             <label for="form-password">Password</label>
         </div>
 
-        <div class="form-outline mb-4">
-            <input type="password" id="form-password-rep" class="form-control mb-1"/>
+        <div class="form-outline mb-4" id="password_rep">
+            <input type="password" id="form-password-rep" name="password_rep" class="form-control mb-1" required/>
             <label for="form-password-rep">Repeat your password</label>
         </div>
 
-        <div class="form-check d-flex justify-content-center mb-4">
-            <input class="form-check-input me-2" type="checkbox" value="" id="form-agreement" checked/>
-            <label class="form-check-label" for="form-agreement">
-                I have read and agree to the terms
-            </label>
+        <div class="form-check d-flex flex-column justify-content-center mb-4" id="agreement">
+            <div>
+                <input class="form-check-input me-2" type="checkbox" name="agreement" id="form-agreement"/>
+                <label class="form-check-label" for="form-agreement">
+                    I have read and agree to the terms
+                </label>
+            </div>
+
         </div>
 
-        <div class="form-error-msg">
-            <p>Please, check your password</p>
-        </div>
-
-        <button type="submit" class="link">Register</button>
+        <button type="button" class="link">Register</button>
     </form>
     <hr>
 </div>
+<script>
+    const API_URL = 'http://0.0.0.0:8000/register'
+
+    const form = document.querySelector('form');
+    const btn = document.querySelector('button');
+
+    btn.addEventListener('click', function () {
+        const form_data = new FormData();
+
+        form_data.append('username', form.username.value)
+        form_data.append('email', form.email.value)
+        form_data.append('password', form.password.value)
+        form_data.append('password_rep', form.password_rep.value)
+        form_data.append('agreement', form.agreement.checked)
+
+        send_form_data(form_data, API_URL, '/login')
+    })
+</script>
 {% endblock %}
