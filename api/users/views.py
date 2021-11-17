@@ -1,15 +1,22 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from rest_framework import status
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
+from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .serializers import RegisterSerializer, LoginSerializer
 
 
+# TODO add Try/Except to all views
+# TODO csrf protect all views where user have not to be logged in
+
+@method_decorator(csrf_protect, name='dispatch')
 class CreateUser(APIView):
     model = User
     serializer_class = RegisterSerializer
+    permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -23,8 +30,10 @@ class CreateUser(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
 
+@method_decorator(csrf_protect, name='dispatch')
 class LoginUser(APIView):
     serializer_class = LoginSerializer
+    permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -48,12 +57,15 @@ class LoginUser(APIView):
 
 
 class LogoutUser(APIView):
-    def get(self, request):
+    def post(self, request):
         logout(request)
         return Response({'message': 'logged out'})
 
 
+@method_decorator(csrf_protect, name='dispatch')
 class UserData(APIView):
+    permission_classes = (permissions.AllowAny,)
+
     def get(self, request):
         user = request.user
         return Response({'message': 'user data',
@@ -64,3 +76,11 @@ class UserData(APIView):
                                   'is_superuser': user.is_superuser
                                   }
                          })
+
+
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class GetCSRFToken(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request):
+        return Response({'success': 'CSRF cookie set'})

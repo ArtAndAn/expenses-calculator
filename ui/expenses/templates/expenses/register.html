@@ -42,8 +42,6 @@
     <hr>
 </div>
 <script>
-    const API_URL = 'http://0.0.0.0:8000/register'
-
     const form = document.querySelector('form');
     const btn = document.querySelector('button');
 
@@ -56,7 +54,7 @@
         form_data.append('password_rep', form.password_rep.value)
         form_data.append('agreement', form.agreement.checked)
 
-        send_form_data(form_data, API_URL, '/login')
+        send_form_data(form_data, '/register', '/login')
     })
 </script>
 {% endblock %}

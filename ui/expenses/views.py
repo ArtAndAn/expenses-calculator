@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 
 def home(request):
@@ -19,3 +19,11 @@ def login(request):
 
 def register(request):
     return render(request, 'expenses/register.html')
+
+
+def logout(request):
+    return render(request, 'expenses/logout.html')
+
+
+def admin(request):
+    return redirect('http://0.0.0.0:8000/admin/')

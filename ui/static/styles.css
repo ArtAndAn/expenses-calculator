@@ -37,6 +37,11 @@ input {
     color: white;
 }
 
+.header-text {
+    color: white;
+    margin: 0 1rem;
+}
+
 .header-line {
     border-left: 1px solid white;
     height: 2.5rem;
