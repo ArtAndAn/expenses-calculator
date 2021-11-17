@@ -11,3 +11,8 @@ class ExpensesSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserExpenses
         fields = ('user', 'category', 'spend', 'date')
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        pass

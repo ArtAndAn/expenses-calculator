@@ -109,9 +109,8 @@ function add_category_field() {
 
     add_button.addEventListener('click', function () {
         const form = document.getElementById('new_category')
-        const field_name = 'category' + form.length
         form.insertAdjacentHTML('beforeend',
-            '<input type="text" id="form-category" name="' + field_name + '" class="form-control popup_input"' +
+            '<input type="text" id="form-category" name="category" class="form-control popup_input"' +
             ' placeholder="Enter category name:" required/>')
     })
 }
@@ -120,12 +119,11 @@ function add_expenses_field() {
     const add_button = document.getElementById('add_expenses_field')
 
     add_button.addEventListener('click', function () {
-        let fields_count = document.getElementsByClassName('expenses-form-line').length + 1
         const fields_div = document.getElementById('expenses_fields')
         fields_div.insertAdjacentHTML('beforeend',
             '<div class="expenses-form-line">' +
             '<label for="category-select" class="expenses-form-text">Select category:</label>' +
-            '<select class="form-select px-2 py-0" id="category-select" name="category' + fields_count + '">' +
+            '<select class="form-select px-2 py-0" id="category-select" name="category">' +
             '<option>Shop</option>' +
             '<option>Market</option>' +
             '<option>Pharmacy</option>' +
@@ -133,9 +131,9 @@ function add_expenses_field() {
             '</select>' +
             '<label for="amount" class="expenses-form-text">Enter amount:</label>' +
             '<input type="number" id="amount" placeholder="0.00" step="0.01"  min="0" max="100000"  ' +
-            'name="spend' + fields_count + '"/>' +
+            'name="spend"/>' +
             '<label for="date" class="expenses-form-text">Enter date:</label>' +
-            '<input type="date" id="date"  name="date' + fields_count + '"/>' +
+            '<input type="date" id="date"  name="date"/>' +
             '</div>')
     })
 }
