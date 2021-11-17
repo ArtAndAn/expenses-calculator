@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'expenses',
-    'django',
+    'errors',
     'corsheaders'  # TODO remove CORS (also from pip django-cors-headers)
 ]
 
@@ -78,12 +78,12 @@ WSGI_APPLICATION = 'ui.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': os.environ.get('SQL_ENGINE'),
-        'NAME': os.environ.get('SQL_NAME'),
-        'USER': os.environ.get('SQL_USER'),
-        'PASSWORD': os.environ.get('SQL_PASSWORD'),
-        'HOST': os.environ.get('SQL_HOST'),
-        'PORT': os.environ.get('SQL_PORT')
+        'ENGINE': "django.db.backends.postgresql",
+        'NAME': "postgres",
+        'USER': "postgres",
+        'PASSWORD': "test",
+        'HOST': "localhost",
+        'PORT': 5432
     }
 }
 

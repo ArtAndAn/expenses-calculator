@@ -89,7 +89,7 @@ input {
     padding-top: 3px;
 }
 
-.more-expenses-button {
+.more-button {
     display: block;
     margin: auto;
     border-radius: 10px;
@@ -97,12 +97,13 @@ input {
     color: #fffde7;
     padding: 5px 10px;
     text-transform: uppercase;
-    font-size: 70%;
+    font-size: 80%;
     border: 1px solid #fffde7;
 }
 
 .auth-form {
     width: 30%;
+    margin: auto;
 }
 
 .form-error-msg {
@@ -115,3 +116,42 @@ input {
     font-size: 0.8rem;
 }
 
+.add_buttons {
+    display: flex;
+    width: fit-content;
+    margin: auto;
+}
+
+.popup_border {
+    border: 0;
+}
+
+.popup_title {
+    margin-left: 10rem;
+}
+
+.popup_hr {
+    margin: auto;
+    width: 80%;
+}
+
+.popup_input {
+    width: 70%;
+    padding: 0;
+    margin: 0 auto 5%;
+}
+
+.popup_content {
+    background-color: #fffde7;
+}
+
+.popup_form_div {
+    display: flex;
+    justify-items: center;
+    justify-content: center;
+}
+
+.popup_btn_close {
+    background-color: #6c757d;
+    border: 1px solid #6c757d;
+}

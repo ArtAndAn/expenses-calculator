@@ -16,5 +16,6 @@ Including another URLconf
 from django.urls import path, include
 
 urlpatterns = [
-    path('', include('expenses.urls'))
+    path('', include('expenses.urls')),
+    path('errors/', include('errors.urls')),
 ]
