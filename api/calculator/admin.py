@@ -7,5 +7,9 @@ class UserExpensesAdmin(admin.ModelAdmin):
     list_display = ('user', 'category', 'spend', 'date')
 
 
-admin.site.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('name', 'user')
+
+
+admin.site.register(Category, CategoryAdmin)
 admin.site.register(UserExpenses, UserExpensesAdmin)

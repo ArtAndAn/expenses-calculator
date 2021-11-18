@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
+from rest_framework import status
 from rest_framework.generics import RetrieveUpdateAPIView, ListCreateAPIView
+from rest_framework.response import Response
 
 from .models import Category, UserExpenses
 from .serializers import ExpensesSerializer, CategorySerializer
@@ -16,6 +18,20 @@ class SingleUserExpenses(RetrieveUpdateAPIView):
 class CategoryView(ListCreateAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+
+    def create(self, request, *args, **kwargs):
+        user = User.objects.get(username=self.request.data[0]['user'])
+        for category in self.request.data:
+            category['user'] = user
+        serializer = self.get_serializer(data=request.data, many=isinstance(request.data, list))
+        serializer.is_valid()
+        if serializer.validated_data:
+            self.perform_create(serializer)
+            return Response(data={'message': 'created'},
+                            status=status.HTTP_201_CREATED)
+        else:
+            return Response(data={'message': 'error', 'errors': serializer.errors},
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 def data_check(request):

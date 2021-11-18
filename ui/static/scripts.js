@@ -21,16 +21,19 @@ function get_cookie(name) {
     if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
-function create_xhr(method, url) {
+function create_xhr(method, url, content_type) {
     const xhr = new XMLHttpRequest();
     xhr.open(method, API_URL + url)
     xhr.withCredentials = true
     xhr.setRequestHeader('X-CSRFToken', get_cookie('csrftoken'))
+    if (content_type) {
+        xhr.setRequestHeader('Content-Type', content_type)
+    }
     return xhr
 }
 
-function send_form_data(form_data, api_url, redirect_url) {
-    const xhr = create_xhr('POST', api_url)
+function send_form_data(form_data, api_url, redirect_url, content_type = null) {
+    const xhr = create_xhr('POST', api_url, content_type)
     xhr.send(form_data);
 
     xhr.onload = () => {
@@ -109,8 +112,9 @@ function add_category_field() {
 
     add_button.addEventListener('click', function () {
         const form = document.getElementById('new_category')
+        const field_name = 'category' + form.length
         form.insertAdjacentHTML('beforeend',
-            '<input type="text" id="form-category" name="category" class="form-control popup_input"' +
+            '<input type="text" id="form-category" name="' + field_name + '" class="form-control popup_input"' +
             ' placeholder="Enter category name:" required/>')
     })
 }
@@ -119,11 +123,12 @@ function add_expenses_field() {
     const add_button = document.getElementById('add_expenses_field')
 
     add_button.addEventListener('click', function () {
+        let fields_count = document.getElementsByClassName('expenses-form-line').length + 1
         const fields_div = document.getElementById('expenses_fields')
         fields_div.insertAdjacentHTML('beforeend',
             '<div class="expenses-form-line">' +
             '<label for="category-select" class="expenses-form-text">Select category:</label>' +
-            '<select class="form-select px-2 py-0" id="category-select" name="category">' +
+            '<select class="form-select px-2 py-0" id="category-select" name="category' + fields_count + '">' +
             '<option>Shop</option>' +
             '<option>Market</option>' +
             '<option>Pharmacy</option>' +
@@ -131,9 +136,9 @@ function add_expenses_field() {
             '</select>' +
             '<label for="amount" class="expenses-form-text">Enter amount:</label>' +
             '<input type="number" id="amount" placeholder="0.00" step="0.01"  min="0" max="100000"  ' +
-            'name="spend"/>' +
+            'name="spend' + fields_count + '"/>' +
             '<label for="date" class="expenses-form-text">Enter date:</label>' +
-            '<input type="date" id="date"  name="date"/>' +
+            '<input type="date" id="date"  name="date' + fields_count + '"/>' +
             '</div>')
     })
 }
@@ -143,15 +148,18 @@ function send_category() {
 
     send_button.addEventListener('click', function () {
         const form = document.getElementById('new_category')
-        const form_data = new FormData();
+        const form_data = [];
 
         for (let field = 1; field < form.length; field++) {
             let field_name = 'category' + field
             let field_data = form[field_name].value
-            form_data.append(field_name, field_data)
+            let user = user_data.username
+
+            form_data.push({'name': field_data, 'user': user})
         }
 
-        send_form_data(form_data, '/new_category', '/')
+        const data_to_api = JSON.stringify(form_data)
+        send_form_data(data_to_api, '/expenses/category', '/', 'application/json')
     })
 }
 
