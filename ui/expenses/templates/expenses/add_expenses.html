@@ -10,12 +10,7 @@
         <div id="expenses_fields">
             <div class="expenses-form-line">
             <label for="category-select" class="expenses-form-text">Select category:</label>
-            <select class="form-select px-2 py-0" id="category-select" name="category1">
-                <option>Shop</option>
-                <option>Market</option>
-                <option>Pharmacy</option>
-                <option>Gym</option>
-            </select>
+            <select class="form-select px-2 py-0" id="category-select" name="category_select1"></select>
             <label for="amount" class="expenses-form-text">Enter amount:</label>
             <input type="number" id="amount" placeholder="0.00" step="0.01" min="0" max="100000" name="spend1"/>
             <label for="date" class="expenses-form-text">Enter date:</label>
@@ -63,5 +58,6 @@
     add_category_field()
     add_expenses_field()
     send_category()
+    get_categories()
 </script>
 {% endblock %}

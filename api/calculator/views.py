@@ -33,6 +33,9 @@ class CategoryView(ListCreateAPIView):
             return Response(data={'message': 'error', 'errors': serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)
 
+    def get_queryset(self):
+        return Category.objects.filter(user=self.request.user)
+
 
 def data_check(request):
     categories = Category.objects.all()

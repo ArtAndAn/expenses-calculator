@@ -3,7 +3,7 @@ from django.db import models
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=50, blank=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:

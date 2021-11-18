@@ -32,12 +32,16 @@ function create_xhr(method, url, content_type) {
     return xhr
 }
 
-function send_form_data(form_data, api_url, redirect_url, content_type = null) {
+function send_form_data(form_data, api_url, redirect_url, content_type = null, form_name = 'auth') {
     const xhr = create_xhr('POST', api_url, content_type)
     xhr.send(form_data);
 
     xhr.onload = () => {
-        check_auth_form(xhr, redirect_url);
+        if (form_name === 'auth') {
+            check_auth_form(xhr, redirect_url);
+        } else if (form_name === 'category') {
+            check_category_form(xhr, redirect_url)
+        }
     }
 }
 
@@ -57,6 +61,52 @@ function check_auth_form(xhr, redirect_url) {
             error_div.append(error_text);
 
             form_field.append(error_div);
+        }
+    } else {
+        window.location.replace(redirect_url);
+    }
+}
+
+function check_inputs(form, value, error) {
+    for (let field = 1; field < form.length; field++) {
+        let field_name = 'category' + field
+        let field_data = form[field_name].value
+        let form_field = document.getElementsByName(field_name)[0]
+        if (!field_data) {
+            let last_element_number = form.length - 1
+            let last_element_name = 'category' + last_element_number
+            let last_elem = document.getElementsByName(last_element_name)[0]
+            show_error(last_elem, 'You can not send empty fields')
+        } else if (field_data === value) {
+            show_error(form_field, error)
+        }
+    }
+}
+
+function show_error(field, error) {
+    const error_div = document.createElement('div');
+    error_div.className = 'alert alert-danger popup_error';
+
+    const error_text = document.createElement('p');
+    error_text.innerHTML = error;
+
+    error_div.append(error_text);
+
+    field.after(error_div);
+}
+
+function check_category_form(xhr, redirect_url) {
+    const response = JSON.parse(xhr.response);
+    if (response.message === 'error') {
+        document.querySelectorAll('.alert').forEach(e => e.remove());
+        form = document.getElementById('new_category')
+
+        for (let field in response.errors) {
+            for (let error in response.errors[field]) {
+                let error_info = response.errors[field][error]
+
+                check_inputs(form, error, error_info)
+            }
         }
     } else {
         window.location.replace(redirect_url);
@@ -128,18 +178,14 @@ function add_expenses_field() {
         fields_div.insertAdjacentHTML('beforeend',
             '<div class="expenses-form-line">' +
             '<label for="category-select" class="expenses-form-text">Select category:</label>' +
-            '<select class="form-select px-2 py-0" id="category-select" name="category' + fields_count + '">' +
-            '<option>Shop</option>' +
-            '<option>Market</option>' +
-            '<option>Pharmacy</option>' +
-            '<option>Gym</option>' +
-            '</select>' +
+            '<select class="form-select px-2 py-0" id="category-select" name="category' + fields_count + '"></select>' +
             '<label for="amount" class="expenses-form-text">Enter amount:</label>' +
             '<input type="number" id="amount" placeholder="0.00" step="0.01"  min="0" max="100000"  ' +
             'name="spend' + fields_count + '"/>' +
             '<label for="date" class="expenses-form-text">Enter date:</label>' +
             '<input type="date" id="date"  name="date' + fields_count + '"/>' +
             '</div>')
+        get_categories()
     })
 }
 
@@ -159,8 +205,27 @@ function send_category() {
         }
 
         const data_to_api = JSON.stringify(form_data)
-        send_form_data(data_to_api, '/expenses/category', '/', 'application/json')
+        send_form_data(data_to_api, '/expenses/category', '/add_expenses', 'application/json',
+            'category')
     })
+}
+
+function get_categories() {
+    const xhr = create_xhr('GET', '/expenses/category')
+    xhr.send()
+    xhr.onload = () => {
+        const response = JSON.parse(xhr.response)
+        const all_selects = document.querySelectorAll('select')
+
+        response.forEach((category) => {
+            const option = document.createElement('option');
+            option.value = category['name'];
+            option.innerHTML = category['name'];
+            all_selects.forEach((x) => {
+                x.appendChild(option)
+            })
+        })
+    }
 }
 
 const API_URL = 'http://0.0.0.0:8000'
