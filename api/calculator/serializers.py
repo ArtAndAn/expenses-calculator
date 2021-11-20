@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.db.models import Q
 from rest_framework import serializers
 
 from .models import Category, UserExpenses
@@ -8,7 +9,8 @@ class CategoryRelatedField(serializers.SlugRelatedField):
     def get_queryset(self):
         queryset = Category.objects.all()
         request = self.context.get('request', None)
-        queryset = queryset.filter(user=request.user)
+        default_user = User.objects.get(username='default')
+        queryset = queryset.filter(Q(user=request.user) | Q(user=default_user))
         return queryset
 
 
@@ -17,7 +19,8 @@ class CategorySerializer(serializers.ModelSerializer):
     name = serializers.CharField(max_length=50, required=True)
 
     def validate(self, attrs):
-        if Category.objects.filter(user=attrs['user']).filter(name=attrs['name']):
+        default_user = User.objects.get(username='default')
+        if Category.objects.filter(Q(user=attrs['user']) | Q(user=default_user)).filter(name=attrs['name']):
             raise serializers.ValidationError({attrs['name']: 'You already have this category.'})
         else:
             return attrs
