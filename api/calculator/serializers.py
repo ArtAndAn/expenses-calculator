@@ -1,16 +1,15 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from .models import UserExpenses, Category
+from .models import Category, UserExpenses
 
 
-class ExpensesSerializer(serializers.ModelSerializer):
-    """Serializer for expenses data"""
-    user = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field='username')
-
-    class Meta:
-        model = UserExpenses
-        fields = ('user', 'category', 'spend', 'date')
+class CategoryRelatedField(serializers.SlugRelatedField):
+    def get_queryset(self):
+        queryset = Category.objects.all()
+        request = self.context.get('request', None)
+        queryset = queryset.filter(user=request.user)
+        return queryset
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -27,7 +26,13 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = ('name', 'user')
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['name'].error_messages['required'] = u'You can\'t send empy fields'
 
+class ExpensesSerializer(serializers.ModelSerializer):
+    category = CategoryRelatedField(queryset=Category.objects.all(), slug_field='name', required=True)
+    spend = serializers.FloatField(min_value=0, max_value=1000000, required=True)
+    date = serializers.DateField(required=True)
+    user = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field='username', required=True)
+
+    class Meta:
+        model = UserExpenses
+        fields = ('category', 'spend', 'date', 'user')

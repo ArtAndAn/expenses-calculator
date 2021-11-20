@@ -41,6 +41,8 @@ function send_form_data(form_data, api_url, redirect_url, content_type = null, f
             check_auth_form(xhr, redirect_url);
         } else if (form_name === 'category') {
             check_category_form(xhr, redirect_url)
+        } else if (form_name === 'expenses') {
+            check_expenses_form(xhr, redirect_url)
         }
     }
 }
@@ -64,6 +66,25 @@ function check_auth_form(xhr, redirect_url) {
         }
     } else {
         window.location.replace(redirect_url);
+    }
+}
+
+function check_expenses_form(xhr, redirect_url) {
+    const response = JSON.parse(xhr.response)
+    if (response.message === 'error') {
+        document.querySelectorAll('.alert').forEach(e => e.remove());
+        const fields_div = document.getElementById('expenses_fields')
+
+        const error_message_div = document.createElement('div')
+        error_message_div.className = 'alert alert-danger popup_error'
+
+        const error_message = document.createElement('p')
+        error_message.innerHTML = 'Check that all fields are filled and amount is less than 1 million'
+
+        error_message_div.append(error_message)
+        fields_div.after(error_message_div)
+    } else {
+        window.location.replace(redirect_url)
     }
 }
 
@@ -178,9 +199,9 @@ function add_expenses_field() {
         fields_div.insertAdjacentHTML('beforeend',
             '<div class="expenses-form-line">' +
             '<label for="category-select" class="expenses-form-text">Select category:</label>' +
-            '<select class="form-select px-2 py-0" id="category-select" name="category' + fields_count + '"></select>' +
+            '<select class="form-select px-2 py-0" id="category-select" name="category_select' + fields_count + '"></select>' +
             '<label for="amount" class="expenses-form-text">Enter amount:</label>' +
-            '<input type="number" id="amount" placeholder="0.00" step="0.01"  min="0" max="100000"  ' +
+            '<input type="number" id="amount" placeholder="0.00" step="0.01"  min="0" max="1000000"  ' +
             'name="spend' + fields_count + '"/>' +
             '<label for="date" class="expenses-form-text">Enter date:</label>' +
             '<input type="date" id="date"  name="date' + fields_count + '"/>' +
@@ -207,6 +228,38 @@ function send_category() {
         const data_to_api = JSON.stringify(form_data)
         send_form_data(data_to_api, '/expenses/category', '/add_expenses', 'application/json',
             'category')
+    })
+}
+
+function send_expenses() {
+    const send_button = document.getElementById('send_expenses')
+
+    send_button.addEventListener('click', function () {
+        const form = document.getElementById('expenses_form')
+        const form_data = []
+        const rows = (form.length - 3) / 3
+        const user = user_data.username
+
+        for (let field = 1; field < rows + 1; field++) {
+            let category_field_name = 'category_select' + field
+            let category_field_data = form[category_field_name].value
+
+            let spend_field_name = 'spend' + field
+            let spend_field_data = form[spend_field_name].value
+
+            let date_field_name = 'date' + field
+            let date_field_data = form[date_field_name].value
+
+            form_data.push({
+                'category': category_field_data,
+                'spend': spend_field_data,
+                'date': date_field_data,
+                'user': user
+            })
+        }
+        const data_to_api = JSON.stringify(form_data)
+        send_form_data(data_to_api, '/expenses/expenses', '/charts', 'application/json',
+            'expenses')
     })
 }
 

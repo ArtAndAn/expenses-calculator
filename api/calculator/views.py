@@ -37,6 +37,28 @@ class CategoryView(ListCreateAPIView):
         return Category.objects.filter(user=self.request.user)
 
 
+class ExpensesView(ListCreateAPIView):
+    queryset = UserExpenses.objects.all()
+    serializer_class = ExpensesSerializer
+
+    def create(self, request, *args, **kwargs):
+        user = User.objects.get(username=self.request.data[0]['user'])
+        for category in request.data:
+            category['user'] = user
+        serializer = self.get_serializer(data=request.data, many=isinstance(request.data, list))
+        serializer.is_valid()
+        if serializer.validated_data:
+            self.perform_create(serializer)
+            return Response(data={'message': 'created'},
+                            status=status.HTTP_201_CREATED)
+        else:
+            return Response(data={'message': 'error', 'errors': serializer.errors},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+    # def get_queryset(self):
+    #     return Category.objects.filter(user=self.request.user)
+
+
 def data_check(request):
     categories = Category.objects.all()
     users = User.objects.all()
