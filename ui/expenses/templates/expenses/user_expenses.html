@@ -3,12 +3,13 @@
 {% block title %}Expenses{% endblock %}
 
 {% block body %}
-<div class="page-content">
+<div class="expenses_page_content">
     <h1>Your expenses</h1>
     <hr>
-    <img src="http://0.0.0.0:8000/expenses/expenses/image" alt="Expenses chart">
+    <div id="expenses-div"></div>
 </div>
 <script>
     authorized_page()
+    get_expenses()
 </script>
 {% endblock %}

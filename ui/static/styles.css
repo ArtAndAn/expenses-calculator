@@ -168,3 +168,35 @@ input {
     background-color: #6c757d;
     border: 1px solid #6c757d;
 }
+
+.expenses_div {
+    display: flex;
+}
+
+.expenses_cat_div {
+    width: 40%;
+}
+
+.expenses_cat_div p {
+    margin: 4.5rem 1rem 0;
+    font-size: 1.3rem;
+}
+
+.vertical_line {
+    border-left: 1px solid;
+    border-color: #c3c5b3;
+    height: 70%;
+    margin: auto 1rem;
+}
+
+.expenses_page_content {
+    display: grid;
+    justify-items: center;
+    width: 90%;
+    margin: 3rem auto 0;
+}
+
+.expenses_table {
+    width: 40%;
+    border: 1px solid;
+}

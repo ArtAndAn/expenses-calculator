@@ -4,18 +4,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def draw_charts(expenses):
-    total_amount_by_category = {}
-    for expense in expenses:
-        expense_category = expense.category.name
-        if expense_category not in total_amount_by_category.keys():
-            total_amount_by_category[expense_category] = expense.spend
-        else:
-            total_amount_by_category[expense_category] += expense.spend
-    sorted_amount_by_category = dict(sorted(total_amount_by_category.items(), key=lambda item: item[1], reverse=True))
+def draw_pie_chart(expenses):
+    sorted_data = arrange_input(expenses)
 
-    categories = sorted_amount_by_category.keys()
-    values = [value for value in sorted_amount_by_category.values()]
+    categories = sorted_data.keys()
+    values = [value for value in sorted_data.values()]
 
     max_value_index = values.index(max(values))
 
@@ -41,3 +34,39 @@ def draw_charts(expenses):
     fig.savefig(image)
 
     return image.getvalue()
+
+
+def draw_column_chart(expenses):
+    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+              '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
+
+    sorted_data = arrange_input(expenses)
+
+    categories = sorted_data.keys()
+    values = [value for value in sorted_data.values()]
+
+    fig, ax = plt.subplots()
+    chart = ax.bar(categories, values, width=0.3, color=colors)
+
+
+    fig.set_facecolor((1, 0.992, 0.91))
+
+    for rect in chart:
+        height = rect.get_height()
+        plt.text(rect.get_x() + rect.get_width() / 2.0, height, '%d' % int(height), ha='center', va='bottom')
+
+    image = BytesIO()
+    fig.savefig(image)
+
+    return image.getvalue()
+
+
+def arrange_input(input_data):
+    total_amount_by_category = {}
+    for expense in input_data:
+        expense_category = expense.category.name
+        if expense_category not in total_amount_by_category.keys():
+            total_amount_by_category[expense_category] = expense.spend
+        else:
+            total_amount_by_category[expense_category] += expense.spend
+    return dict(sorted(total_amount_by_category.items(), key=lambda item: item[1], reverse=True))

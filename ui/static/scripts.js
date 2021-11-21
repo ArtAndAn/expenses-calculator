@@ -281,6 +281,47 @@ function get_categories() {
     }
 }
 
+function get_expenses() {
+    const xhr = create_xhr('GET', '/expenses/expenses')
+    xhr.send()
+    xhr.onload = () => {
+        const response = JSON.parse(xhr.response)
+        if (response[0].category) {
+            const expenses_div = document.getElementById('expenses-div')
+            expenses_div.className = 'expenses_div'
+            expenses_div.insertAdjacentHTML('beforeend',
+                '<img src="http://0.0.0.0:8000/expenses/expenses/roundimage" alt="Expenses round chart">')
+            expenses_div.insertAdjacentHTML('beforeend',
+                '<div class="vertical_line"></div>')
+            expenses_div.insertAdjacentHTML('beforeend',
+                '<img src="http://0.0.0.0:8000/expenses/expenses/barimage" alt="Expenses bar chart">')
+            const main_content_div = document.getElementsByClassName('expenses_page_content')[0]
+            main_content_div.insertAdjacentHTML('beforeend', '<hr>')
+            main_content_div.insertAdjacentHTML('beforeend', '<h4 class="mb-3">Your last expenses in selected time period</h4>')
+            main_content_div.insertAdjacentHTML('beforeend', '<table class="table expenses_table">\n' +
+                '  <thead>\n' +
+                '    <tr>\n' +
+                '      <th scope="col">Date</th>\n' +
+                '      <th scope="col">Category</th>\n' +
+                '      <th scope="col">Amount</th>\n' +
+                '    </tr>\n' +
+                '  </thead>\n' +
+                '  <tbody  id="table_body">\n' +
+                '  </tbody>\n' +
+                '</table>')
+            const table = document.getElementById('table_body')
+            for (let expense in response) {
+                table.insertAdjacentHTML('beforeend',
+                    '<tr>' +
+                    '<td>'+ response[expense].date +'</td>' +
+                    '<td>'+ response[expense].category +'</td>' +
+                    '<td>'+ response[expense].spend +'</td>' +
+                    '</tr>')
+            }
+        }
+    }
+}
+
 const API_URL = 'http://0.0.0.0:8000'
 let user_data
 

@@ -6,7 +6,7 @@ from rest_framework.generics import ListCreateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .draw_charts import draw_charts
+from .draw_charts import draw_column_chart, draw_pie_chart
 from .models import Category, UserExpenses
 from .serializers import ExpensesSerializer, CategorySerializer
 
@@ -54,11 +54,21 @@ class ExpensesView(ListCreateAPIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
     def get_queryset(self):
-        return UserExpenses.objects.filter(user=self.request.user).order_by('-date')
+        queryset = UserExpenses.objects.filter(user=self.request.user).order_by('-date')[:10]
+        for element in queryset:
+            element.date = element.date.strftime("%-d %B %Y")
+        return queryset
 
 
-class GetExpensesImage(APIView):
+class GetExpensesRoundImage(APIView):
     def get(self, request):
         expenses = UserExpenses.objects.filter(user=request.user).order_by('-date')
-        chart = draw_charts(expenses)
+        chart = draw_pie_chart(expenses)
+        return HttpResponse(chart, content_type="image/png")
+
+
+class GetExpensesBarImage(APIView):
+    def get(self, request):
+        expenses = UserExpenses.objects.filter(user=request.user).order_by('-date')
+        chart = draw_column_chart(expenses)
         return HttpResponse(chart, content_type="image/png")
