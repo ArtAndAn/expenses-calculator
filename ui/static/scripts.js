@@ -281,44 +281,107 @@ function get_categories() {
     }
 }
 
-function get_expenses() {
-    const xhr = create_xhr('GET', '/expenses/expenses')
+function buttons_eventlisteners() {
+    const total_time_button = document.getElementById('total_time')
+    const last_month_button = document.getElementById('last_month')
+    const last_week_button = document.getElementById('last_week')
+    const time_period_select_button = document.getElementById('send_time_period')
+
+    total_time_button.addEventListener('click', () => {
+        create_expenses_page('total')
+    })
+    last_month_button.addEventListener('click', () => {
+        create_expenses_page('month')
+    })
+    last_week_button.addEventListener('click', () => {
+        create_expenses_page('week')
+    })
+    time_period_select_button.addEventListener('click', () => {
+        get_time_period_data(time_period_select_button)
+    })
+}
+
+function get_time_period_data(button) {
+    const form = document.getElementById('time_period_form')
+    const period = form.from.value + ':' + form.until.value
+    create_expenses_page(period)
+}
+
+function remove_prev_data() {
+    document.getElementById('expenses-div').innerHTML = ''
+    while (document.getElementById('line_after_charts')) {
+        document.getElementById('line_after_charts').remove()
+    }
+    while (document.getElementById('table_title')) {
+        document.getElementById('table_title').remove()
+    }
+    while (document.querySelector('table')) {
+        document.querySelector('table').remove()
+    }
+}
+
+function create_expenses_page(period) {
+    const xhr = create_xhr('GET', '/expenses/expenses?period=' + period)
     xhr.send()
     xhr.onload = () => {
         const response = JSON.parse(xhr.response)
-        if (response[0].category) {
+        if (response.message === 'ok') {
+            document.getElementsByClassName('btn-close')[0].click()
             const expenses_div = document.getElementById('expenses-div')
+
+            remove_prev_data()
+
             expenses_div.className = 'expenses_div'
+            const round_image_url = 'http://0.0.0.0:8000/expenses/expenses/roundimage?period=' + period
+            const bar_image_url = 'http://0.0.0.0:8000/expenses/expenses/barimage?period=' + period
             expenses_div.insertAdjacentHTML('beforeend',
-                '<img src="http://0.0.0.0:8000/expenses/expenses/roundimage" alt="Expenses round chart">')
+                '<img src="' + round_image_url + '" alt="Expenses round chart">')
             expenses_div.insertAdjacentHTML('beforeend',
                 '<div class="vertical_line"></div>')
             expenses_div.insertAdjacentHTML('beforeend',
-                '<img src="http://0.0.0.0:8000/expenses/expenses/barimage" alt="Expenses bar chart">')
-            const main_content_div = document.getElementsByClassName('expenses_page_content')[0]
-            main_content_div.insertAdjacentHTML('beforeend', '<hr>')
-            main_content_div.insertAdjacentHTML('beforeend', '<h4 class="mb-3">Your last expenses in selected time period</h4>')
-            main_content_div.insertAdjacentHTML('beforeend', '<table class="table expenses_table">\n' +
-                '  <thead>\n' +
-                '    <tr>\n' +
-                '      <th scope="col">Date</th>\n' +
-                '      <th scope="col">Category</th>\n' +
-                '      <th scope="col">Amount</th>\n' +
-                '    </tr>\n' +
-                '  </thead>\n' +
-                '  <tbody  id="table_body">\n' +
-                '  </tbody>\n' +
-                '</table>')
-            const table = document.getElementById('table_body')
-            for (let expense in response) {
-                table.insertAdjacentHTML('beforeend',
-                    '<tr>' +
-                    '<td>'+ response[expense].date +'</td>' +
-                    '<td>'+ response[expense].category +'</td>' +
-                    '<td>'+ response[expense].spend +'</td>' +
-                    '</tr>')
+                '<img src="' + bar_image_url + '" alt="Expenses bar chart">')
+            setTimeout(() => {
+                draw_expenses_table(response.data)
+            }, 500)
+        } else {
+            const form = document.getElementById('time_period_form')
+
+            const prev_error = document.getElementsByClassName('alert alert-danger popup_error')[0]
+            if (prev_error) {
+                prev_error.remove()
             }
+
+            form.insertAdjacentHTML('afterend',
+                '<div class="alert alert-danger popup_error">' +
+                '<p>' + response.error + '</p>' +
+                '</div>')
         }
+    }
+}
+
+function draw_expenses_table(response) {
+    const main_content_div = document.getElementsByClassName('expenses_page_content')[0]
+    main_content_div.insertAdjacentHTML('beforeend', '<hr id="line_after_charts">')
+    main_content_div.insertAdjacentHTML('beforeend', '<h4 class="mb-3" id="table_title">Your last expenses in selected time period</h4>')
+    main_content_div.insertAdjacentHTML('beforeend', '<table class="table expenses_table">\n' +
+        '  <thead>\n' +
+        '    <tr>\n' +
+        '      <th scope="col">Date</th>\n' +
+        '      <th scope="col">Category</th>\n' +
+        '      <th scope="col">Amount</th>\n' +
+        '    </tr>\n' +
+        '  </thead>\n' +
+        '  <tbody  id="table_body">\n' +
+        '  </tbody>\n' +
+        '</table>')
+    const table = document.getElementById('table_body')
+    for (let expense in response) {
+        table.insertAdjacentHTML('beforeend',
+            '<tr>' +
+            '<td>' + response[expense].date + '</td>' +
+            '<td>' + response[expense].category + '</td>' +
+            '<td>' + response[expense].spend + '</td>' +
+            '</tr>')
     }
 }
 

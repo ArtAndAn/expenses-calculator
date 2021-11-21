@@ -39,3 +39,6 @@ class ExpensesSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserExpenses
         fields = ('category', 'spend', 'date', 'user')
+
+    def validate(self, attrs):
+        pass

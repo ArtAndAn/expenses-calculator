@@ -6,10 +6,52 @@
 <div class="expenses_page_content">
     <h1>Your expenses</h1>
     <hr>
+    <div class="period_select">
+        <button class="period_button link" id="total_time">Total</button>
+        <button class="period_button link" id="last_month">Last month</button>
+        <button class="period_button link" id="last_week">Last week</button>
+        <button type="button" class="period_button link" data-bs-toggle="modal"
+                data-bs-target="#time_period">Time period
+        </button>
+    </div>
+    <hr>
     <div id="expenses-div"></div>
 </div>
+
+<div class="modal fade" id="time_period" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content popup_content">
+            <div class="modal-header popup_border">
+                <h5 class="modal-title popup_title" id="exampleModalLabel">Select time period</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <hr class="popup_hr">
+            <div class="modal-body popup_border">
+                <form id="time_period_form">
+                    <div class="period_date  mb-4">
+                        <label for="from" class="time_period_label">From: </label>
+                        <input type="date" id="from" name="from" class="form-control"
+                               placeholder="Enter category name:" required/>
+                    </div>
+                    <div class="period_date period_date_lower">
+                        <label for="until" class="time_period_label">Till: </label>
+                        <input type="date" id="until" name="until" class="form-control"
+                               placeholder="Enter category name:" required/>
+                    </div>
+                </form>
+            </div>
+            <hr class="popup_hr">
+            <div class="modal-footer popup_border">
+                <button type="button" class="link popup_btn_close" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="link" id="send_time_period">Select</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     authorized_page()
-    get_expenses()
+    create_expenses_page('total')
+    buttons_eventlisteners()
 </script>
 {% endblock %}

@@ -127,7 +127,7 @@ input {
 }
 
 .popup_title {
-    margin-left: 10rem;
+    margin-left: 8.5rem;
 }
 
 .popup_hr {
@@ -199,4 +199,26 @@ input {
 .expenses_table {
     width: 40%;
     border: 1px solid;
+}
+
+.period_button {
+    margin: 0 1.5rem;
+}
+
+.period_date {
+    display: inline-flex;
+    width: 55%;
+}
+
+.period_date label {
+    padding-top: 2.5%;
+    margin-right: 10%;
+}
+
+.period_date input {
+    width: 60%;
+}
+
+.period_date_lower {
+    margin: 0 0 3% 4.5%;
 }
