@@ -42,19 +42,6 @@
     <hr>
 </div>
 <script>
-    const form = document.querySelector('form');
-    const btn = document.querySelector('button');
-
-    btn.addEventListener('click', function () {
-        const form_data = new FormData();
-
-        form_data.append('username', form.username.value)
-        form_data.append('email', form.email.value)
-        form_data.append('password', form.password.value)
-        form_data.append('password_rep', form.password_rep.value)
-        form_data.append('agreement', form.agreement.checked)
-
-        send_form_data(form_data, '/register', '/login')
-    })
+    register_button_event_listener()
 </script>
 {% endblock %}

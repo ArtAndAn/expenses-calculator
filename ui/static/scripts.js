@@ -1,38 +1,8 @@
-function check_user() {
-    const xhr = create_xhr('GET', '/user')
-    xhr.send()
-
-    xhr.onload = () => {
-        const user_status_resp = JSON.parse(xhr.response)
-        user_data = user_status_resp.user
-
-        create_page_header(user_data)
-    }
-}
-
-function get_csrf() {
-    const xhr = create_xhr('GET', '/get_csrf')
-    xhr.send()
-}
-
-function get_cookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-}
-
-function create_xhr(method, url, content_type) {
-    const xhr = new XMLHttpRequest();
-    xhr.open(method, API_URL + url)
-    xhr.withCredentials = true
-    xhr.setRequestHeader('X-CSRFToken', get_cookie('csrftoken'))
-    if (content_type) {
-        xhr.setRequestHeader('Content-Type', content_type)
-    }
-    return xhr
-}
-
-function send_form_data(form_data, api_url, redirect_url, content_type = null, form_name = 'auth') {
+// General functions
+function send_form_data_to_api(form_data, api_url, redirect_url, content_type = null, form_name = 'auth') {
+    /* Function to send form data to api and to check response if there are any errors
+    * If errors - to show them to user
+    * If no errors - to redirect user to other page */
     const xhr = create_xhr('POST', api_url, content_type)
     xhr.send(form_data);
 
@@ -47,91 +17,47 @@ function send_form_data(form_data, api_url, redirect_url, content_type = null, f
     }
 }
 
-function check_auth_form(xhr, redirect_url) {
-    const response = JSON.parse(xhr.response);
-    if (response.message === 'error') {
-        document.querySelectorAll('.alert').forEach(e => e.remove());
-        for (const error in response.errors) {
-            const form_field = document.getElementById(error);
-
-            const error_div = document.createElement('div');
-            error_div.className = 'alert alert-danger form-error-msg';
-
-            const error_text = document.createElement('p');
-            error_text.innerHTML = response.errors[error];
-
-            error_div.append(error_text);
-
-            form_field.append(error_div);
-        }
-    } else {
-        window.location.replace(redirect_url);
+function create_xhr(method, url, content_type) {
+    /* Returns xhr with csrf token in request headers */
+    const xhr = new XMLHttpRequest();
+    xhr.open(method, API_URL + url)
+    xhr.withCredentials = true
+    xhr.setRequestHeader('X-CSRFToken', get_cookie('csrftoken'))
+    if (content_type) {
+        xhr.setRequestHeader('Content-Type', content_type)
     }
+    return xhr
 }
 
-function check_expenses_form(xhr, redirect_url) {
-    const response = JSON.parse(xhr.response)
-    if (response.message === 'error') {
-        document.querySelectorAll('.alert').forEach(e => e.remove());
-        const fields_div = document.getElementById('expenses_fields')
-
-        const error_message_div = document.createElement('div')
-        error_message_div.className = 'alert alert-danger popup_error'
-
-        const error_message = document.createElement('p')
-        error_message.innerHTML = 'Check that all fields are filled and amount is less than 1 million'
-
-        error_message_div.append(error_message)
-        fields_div.after(error_message_div)
+function authorized_page() {
+    /* If user is not authenticated - redirects him to 403 error page */
+    if (!user_data) {
+        setTimeout(authorized_page, 100)
     } else {
-        window.location.replace(redirect_url)
-    }
-}
-
-function check_inputs(form, value, error) {
-    for (let field = 1; field < form.length; field++) {
-        let field_name = 'category' + field
-        let field_data = form[field_name].value
-        let form_field = document.getElementsByName(field_name)[0]
-        if (!field_data) {
-            let last_element_number = form.length - 1
-            let last_element_name = 'category' + last_element_number
-            let last_elem = document.getElementsByName(last_element_name)[0]
-            show_error(last_elem, 'You can not send empty fields')
-        } else if (field_data === value) {
-            show_error(form_field, error)
+        if (!user_data.is_authenticated) {
+            window.location.replace('/errors/403')
         }
     }
 }
 
-function show_error(field, error) {
-    const error_div = document.createElement('div');
-    error_div.className = 'alert alert-danger popup_error';
+function user_data_from_api() {
+    /* Makes API request to get user data and sets it to 'user_data' variable
+    * Then creates page header according to user data */
+    const xhr = create_xhr('GET', '/user')
+    xhr.send()
 
-    const error_text = document.createElement('p');
-    error_text.innerHTML = error;
+    xhr.onload = () => {
+        const user_status_resp = JSON.parse(xhr.response)
+        user_data = user_status_resp.user
 
-    error_div.append(error_text);
-
-    field.after(error_div);
+        create_page_header(user_data)
+    }
 }
 
-function check_category_form(xhr, redirect_url) {
-    const response = JSON.parse(xhr.response);
-    if (response.message === 'error') {
-        document.querySelectorAll('.alert').forEach(e => e.remove());
-        form = document.getElementById('new_category')
-
-        for (let field in response.errors) {
-            for (let error in response.errors[field]) {
-                let error_info = response.errors[field][error]
-
-                check_inputs(form, error, error_info)
-            }
-        }
-    } else {
-        window.location.replace(redirect_url);
-    }
+function get_csrf() {
+    /* API request to set user csrf token */
+    const xhr = create_xhr('GET', '/get_csrf')
+    xhr.send()
 }
 
 function create_page_header(user) {
@@ -156,6 +82,70 @@ function create_page_header(user) {
     }
 }
 
+function get_cookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
+function check_auth_form(xhr, redirect_url) {
+    /* If error in xhr response - shows errors to user
+    * Else redirecting him to other page */
+    const response = JSON.parse(xhr.response);
+    if (response.message === 'error') {
+        document.querySelectorAll('.alert').forEach(e => e.remove());
+        for (const error in response.errors) {
+            const form_field = document.getElementById(error);
+
+            const error_div = document.createElement('div');
+            error_div.className = 'alert alert-danger form-error-msg';
+
+            const error_text = document.createElement('p');
+            error_text.innerHTML = response.errors[error];
+
+            error_div.append(error_text);
+
+            form_field.append(error_div);
+        }
+    } else {
+        window.location.replace(redirect_url);
+    }
+}
+
+// Register page functions
+function register_button_event_listener() {
+    const form = document.querySelector('form');
+    const btn = document.querySelector('button');
+
+    btn.addEventListener('click', function () {
+        const form_data = new FormData();
+
+        form_data.append('username', form.username.value)
+        form_data.append('email', form.email.value)
+        form_data.append('password', form.password.value)
+        form_data.append('password_rep', form.password_rep.value)
+        form_data.append('agreement', form.agreement.checked)
+
+        send_form_data_to_api(form_data, '/register', '/login')
+    })
+}
+
+// Login page functions
+function login_button_event_listener() {
+    const form = document.querySelector('form');
+    const btn = document.querySelector('button');
+
+    btn.addEventListener('click', function () {
+        const form_data = new FormData();
+
+        form_data.append('username', form.username.value)
+        form_data.append('password', form.password.value)
+
+        send_form_data_to_api(form_data, '/login', '/')
+    })
+}
+
+// Logout page functions
 function logout() {
     const xhr = create_xhr('POST', '/logout')
     xhr.send()
@@ -168,17 +158,8 @@ function logout() {
     }
 }
 
-function authorized_page() {
-    if (!user_data) {
-        setTimeout(authorized_page, 100)
-    } else {
-        if (!user_data.is_authenticated) {
-            window.location.replace('/errors/403')
-        }
-    }
-}
-
-function add_category_field() {
+// Add expenses page functions
+function add_category_row_btn_listener() {
     const add_button = document.getElementById('add_category_field')
 
     add_button.addEventListener('click', function () {
@@ -190,7 +171,7 @@ function add_category_field() {
     })
 }
 
-function add_expenses_field() {
+function add_expenses_row_btn_listener() {
     const add_button = document.getElementById('add_expenses_field')
 
     add_button.addEventListener('click', function () {
@@ -206,11 +187,11 @@ function add_expenses_field() {
             '<label for="date" class="expenses-form-text">Enter date:</label>' +
             '<input type="date" id="date"  name="date' + fields_count + '"/>' +
             '</div>')
-        get_categories()
+        add_categories_to_select()
     })
 }
 
-function send_category() {
+function send_category_btn_listener() {
     const send_button = document.getElementById('send_category')
 
     send_button.addEventListener('click', function () {
@@ -226,12 +207,12 @@ function send_category() {
         }
 
         const data_to_api = JSON.stringify(form_data)
-        send_form_data(data_to_api, '/expenses/category', '/add_expenses', 'application/json',
+        send_form_data_to_api(data_to_api, '/expenses/category', '/add_expenses', 'application/json',
             'category')
     })
 }
 
-function send_expenses() {
+function send_expenses_btn_listener() {
     const send_button = document.getElementById('send_expenses')
 
     send_button.addEventListener('click', function () {
@@ -258,12 +239,12 @@ function send_expenses() {
             })
         }
         const data_to_api = JSON.stringify(form_data)
-        send_form_data(data_to_api, '/expenses/expenses', '/charts', 'application/json',
+        send_form_data_to_api(data_to_api, '/expenses/expenses', '/charts', 'application/json',
             'expenses')
     })
 }
 
-function get_categories() {
+function add_categories_to_select() {
     const xhr = create_xhr('GET', '/expenses/category')
     xhr.send()
     xhr.onload = () => {
@@ -281,7 +262,73 @@ function get_categories() {
     }
 }
 
-function buttons_eventlisteners() {
+function check_category_form(xhr, redirect_url) {
+    const response = JSON.parse(xhr.response);
+    if (response.message === 'error') {
+        document.querySelectorAll('.alert').forEach(e => e.remove());
+        const form = document.getElementById('new_category')
+
+        for (let field in response.errors) {
+            for (let error in response.errors[field]) {
+                let error_info = response.errors[field][error]
+
+                check_category_form_inputs(form, error, error_info)
+            }
+        }
+    } else {
+        window.location.replace(redirect_url);
+    }
+}
+
+function check_expenses_form(xhr, redirect_url) {
+    const response = JSON.parse(xhr.response)
+    if (response.message === 'error') {
+        document.querySelectorAll('.alert').forEach(e => e.remove());
+        const fields_div = document.getElementById('expenses_fields')
+
+        const error_message_div = document.createElement('div')
+        error_message_div.className = 'alert alert-danger popup_error'
+
+        const error_message = document.createElement('p')
+        error_message.innerHTML = 'Check that all fields are filled and amount is less than 1 million'
+
+        error_message_div.append(error_message)
+        fields_div.after(error_message_div)
+    } else {
+        window.location.replace(redirect_url)
+    }
+}
+
+function check_category_form_inputs(form, value, error) {
+    for (let field = 1; field < form.length; field++) {
+        let field_name = 'category' + field
+        let field_data = form[field_name].value
+        let form_field = document.getElementsByName(field_name)[0]
+        if (!field_data) {
+            let last_element_number = form.length - 1
+            let last_element_name = 'category' + last_element_number
+            let last_elem = document.getElementsByName(last_element_name)[0]
+            add_error_msg_on_category_form(last_elem, 'You can not send empty fields')
+        } else if (field_data === value) {
+            add_error_msg_on_category_form(form_field, error)
+        }
+    }
+}
+
+function add_error_msg_on_category_form(field, error) {
+    const error_div = document.createElement('div');
+    error_div.className = 'alert alert-danger popup_error';
+
+    const error_text = document.createElement('p');
+    error_text.innerHTML = error;
+
+    error_div.append(error_text);
+
+    field.after(error_div);
+}
+
+// User expenses page functions
+function time_period_btns_listeners() {
     const total_time_button = document.getElementById('total_time')
     const last_month_button = document.getElementById('last_month')
     const last_week_button = document.getElementById('last_week')
@@ -301,48 +348,38 @@ function buttons_eventlisteners() {
     })
 }
 
-function get_time_period_data(button) {
-    const form = document.getElementById('time_period_form')
-    const period = form.from.value + ':' + form.until.value
-    create_expenses_page(period)
-}
-
-function remove_prev_data() {
-    document.getElementById('expenses-div').innerHTML = ''
-    while (document.getElementById('line_after_charts')) {
-        document.getElementById('line_after_charts').remove()
-    }
-    while (document.getElementById('table_title')) {
-        document.getElementById('table_title').remove()
-    }
-    while (document.querySelector('table')) {
-        document.querySelector('table').remove()
-    }
-}
-
 function create_expenses_page(period) {
     const xhr = create_xhr('GET', '/expenses/expenses?period=' + period)
     xhr.send()
     xhr.onload = () => {
         const response = JSON.parse(xhr.response)
         if (response.message === 'ok') {
-            document.getElementsByClassName('btn-close')[0].click()
-            const expenses_div = document.getElementById('expenses-div')
+            if (response.data.length) {
+                document.getElementsByClassName('btn-close')[0].click()
+                const expenses_div = document.getElementById('expenses-div')
+                expenses_div.className = 'expenses_div'
 
-            remove_prev_data()
+                remove_prev_data_expenses_page()
 
-            expenses_div.className = 'expenses_div'
-            const round_image_url = 'http://0.0.0.0:8000/expenses/roundimage?period=' + period
-            const bar_image_url = 'http://0.0.0.0:8000/expenses/barimage?period=' + period
-            expenses_div.insertAdjacentHTML('beforeend',
-                '<img src="' + round_image_url + '" alt="Expenses round chart">')
-            expenses_div.insertAdjacentHTML('beforeend',
-                '<div class="vertical_line"></div>')
-            expenses_div.insertAdjacentHTML('beforeend',
-                '<img src="' + bar_image_url + '" alt="Expenses bar chart">')
-            setTimeout(() => {
-                draw_expenses_table(response.data)
-            }, 500)
+                const round_image_url = 'http://0.0.0.0:8000/expenses/roundimage?period=' + period
+                const bar_image_url = 'http://0.0.0.0:8000/expenses/barimage?period=' + period
+                expenses_div.insertAdjacentHTML('beforeend',
+                    '<img src="' + round_image_url + '" alt="Expenses round chart">')
+                expenses_div.insertAdjacentHTML('beforeend',
+                    '<div class="vertical_line"></div>')
+                expenses_div.insertAdjacentHTML('beforeend',
+                    '<img src="' + bar_image_url + '" alt="Expenses bar chart">')
+                setTimeout(() => {
+                    draw_expenses_table(response.data)
+                }, 500)
+            } else {
+                const expenses_div = document.getElementById('expenses-div')
+                expenses_div.className = 'expenses_div'
+
+                expenses_div.insertAdjacentHTML('afterbegin',
+                    '<h2 class="mt-5">Sorry, but tou don\'t have any expenses yet</h2>')
+            }
+
         } else {
             const form = document.getElementById('time_period_form')
 
@@ -356,6 +393,19 @@ function create_expenses_page(period) {
                 '<p>' + response.error + '</p>' +
                 '</div>')
         }
+    }
+}
+
+function remove_prev_data_expenses_page() {
+    document.getElementById('expenses-div').innerHTML = ''
+    while (document.getElementById('line_after_charts')) {
+        document.getElementById('line_after_charts').remove()
+    }
+    while (document.getElementById('table_title')) {
+        document.getElementById('table_title').remove()
+    }
+    while (document.querySelector('table')) {
+        document.querySelector('table').remove()
     }
 }
 
@@ -385,8 +435,12 @@ function draw_expenses_table(response) {
     }
 }
 
+function get_time_period_data(button) {
+    const form = document.getElementById('time_period_form')
+    const period = form.from.value + ':' + form.until.value
+    create_expenses_page(period)
+}
+
+
 const API_URL = 'http://0.0.0.0:8000'
 let user_data
-
-get_csrf()
-check_user()

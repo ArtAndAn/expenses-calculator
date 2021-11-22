@@ -22,17 +22,6 @@
     <hr>
 </div>
 <script>
-    const form = document.querySelector('form');
-    const btn = document.querySelector('button');
-
-    btn.addEventListener('click', function () {
-        const form_data = new FormData();
-
-        form_data.append('username', form.username.value)
-        form_data.append('password', form.password.value)
-
-        send_form_data(form_data, '/login', '/')
-    })
-
+    login_button_event_listener()
 </script>
 {% endblock %}

@@ -24,11 +24,9 @@ SECRET_KEY = 'django-insecure-o@na(b4j8co6#_w86*g*j+s0t3uyd&91fk3-9fp*h=c*6un$)n
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']  # TODO configure HOSTS
-CORS_ORIGIN_ALLOW_ALL = True  # TODO remove CORS
+ALLOWED_HOSTS = ['*']
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -37,8 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'expenses',
-    'errors',
-    'corsheaders'  # TODO remove CORS (also from pip django-cors-headers)
+    'errors'
 ]
 
 MIDDLEWARE = [
@@ -48,9 +45,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',  # TODO remove CORS
-
+    'django.middleware.clickjacking.XFrameOptionsMiddleware'
 ]
 
 ROOT_URLCONF = 'ui.urls'
@@ -75,7 +70,6 @@ WSGI_APPLICATION = 'ui.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': "django.db.backends.postgresql",
@@ -122,7 +116,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_ROOT = ''
 
 STATICFILES_DIRS = (
