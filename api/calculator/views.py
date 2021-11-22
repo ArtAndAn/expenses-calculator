@@ -14,15 +14,19 @@ from .serializers import ExpensesSerializer, CategorySerializer
 
 
 class CategoryView(ListCreateAPIView):
+    """
+    View for creating new user categories and showing to client categories that he already has.
+    """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
     def create(self, request, *args, **kwargs):
-        user = User.objects.get(username=self.request.data[0]['user'])
         for category in self.request.data:
-            category['user'] = user
+            category['user'] = request.user
+
         serializer = self.get_serializer(data=request.data, many=isinstance(request.data, list))
         serializer.is_valid()
+
         if serializer.validated_data:
             self.perform_create(serializer)
             return Response(data={'message': 'created'},
@@ -38,15 +42,19 @@ class CategoryView(ListCreateAPIView):
 
 
 class ExpensesView(ListCreateAPIView):
+    """
+    View for creating new user expenses and showing to client expenses that he already has.
+    """
     queryset = UserExpenses.objects.all()
     serializer_class = ExpensesSerializer
 
     def create(self, request, *args, **kwargs):
-        user = User.objects.get(username=self.request.data[0]['user'])
         for category in request.data:
-            category['user'] = user
+            category['user'] = request.user
+
         serializer = self.get_serializer(data=request.data, many=isinstance(request.data, list))
         serializer.is_valid()
+
         if serializer.validated_data:
             self.perform_create(serializer)
             return Response(data={'message': 'created'},
@@ -55,36 +63,66 @@ class ExpensesView(ListCreateAPIView):
             return Response(data={'message': 'error', 'errors': serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)
 
-    # def get_queryset(self):
-    #     time_period = self.request.GET.get('period', '')
-    #     queryset = get_period_queryset(user=self.request.user, time_period=time_period)
-    #     if not queryset['message']:
-    #         for element in queryset:  # TODO write test if queryset has ErrorResponse or expenses
-    #             element.date = element.date.strftime("%-d %B %Y")
-    #     return queryset
-
     def list(self, request, *args, **kwargs):
         time_period = self.request.GET.get('period', '')
-        if ':' in time_period:
-            dates = time_period.split(':')
-            if not dates[0] or not dates[1]:
-                return Response(data={'message': 'error',
-                                      'error': 'Check that both dates are filled'},
-                                status=status.HTTP_400_BAD_REQUEST)
-            from_date = datetime.datetime.strptime(dates[0], '%Y-%m-%d')
-            till_date = datetime.datetime.strptime(dates[1], '%Y-%m-%d')
-            if till_date < from_date:
-                return Response(data={'message': 'error',
-                                      'error': 'Check that "From" date is less than "Till" date'},
-                                status=status.HTTP_400_BAD_REQUEST)
-            queryset = get_period_queryset(self.request.user, time_period, from_date, till_date)
-        else:
-            queryset = get_period_queryset(self.request.user, time_period)
+
+        queryset = get_time_period_queryset(time_period, request.user)
+        if isinstance(queryset, str):
+            return Response(data={'message': 'error', 'error': queryset}, status=status.HTTP_400_BAD_REQUEST)
+
         serializer = self.get_serializer(queryset, many=True)
         return Response(data={'message': 'ok', 'data': serializer.data}, status=status.HTTP_200_OK)
 
 
-def get_period_queryset(user, time_period, from_date=None, till_date=None):
+class GetExpensesRoundImage(APIView):
+    """
+    View for creating a round(pie) chart for selected time period user expenses
+    """
+    def get(self, request):
+        time_period = self.request.GET.get('period', '')
+
+        queryset = get_time_period_queryset(time_period, request.user)
+        if isinstance(queryset, str):
+            return Response(data={'message': 'error', 'error': queryset}, status=status.HTTP_400_BAD_REQUEST)
+
+        chart = draw_pie_chart(queryset)
+        return HttpResponse(chart, content_type="image/png")
+
+
+class GetExpensesBarImage(APIView):
+    """
+    View for creating a bar(column) chart for selected time period user expenses
+    """
+    def get(self, request):
+        time_period = self.request.GET.get('period', '')
+
+        queryset = get_time_period_queryset(time_period, request.user)
+        if isinstance(queryset, str):
+            return Response(data={'message': 'error', 'error': queryset}, status=status.HTTP_400_BAD_REQUEST)
+
+        chart = draw_column_chart(queryset)
+        return HttpResponse(chart, content_type="image/png")
+
+
+def get_time_period_queryset(time_period, user):
+    """
+    View that returns a user expenses queryset filtered by time period or error string if form data is not correct
+    """
+    if ':' in time_period:
+        dates = time_period.split(':')
+        if not dates[0] or not dates[1]:
+            return 'Check that both dates are filled'
+        from_date = datetime.datetime.strptime(dates[0], '%Y-%m-%d')
+        till_date = datetime.datetime.strptime(dates[1], '%Y-%m-%d')
+        if till_date < from_date:
+            return 'Check that "From" date is less than "Till" date'
+        queryset = return_queryset(user, time_period, from_date, till_date)
+    else:
+        queryset = return_queryset(user, time_period)
+    return queryset
+
+
+def return_queryset(user, time_period, from_date=None, till_date=None):
     today = datetime.date.today()
     if time_period == 'total':
         queryset = UserExpenses.objects.filter(user=user).order_by('-date')[:10]
@@ -98,47 +136,3 @@ def get_period_queryset(user, time_period, from_date=None, till_date=None):
         queryset = UserExpenses.objects.filter(user=user).filter(
             date__range=[from_date, till_date]).order_by('-date')[:10]
     return queryset
-
-
-class GetExpensesRoundImage(APIView):
-    def get(self, request):
-        time_period = self.request.GET.get('period', '')
-        if ':' in time_period:
-            dates = time_period.split(':')
-            if not dates[0] or not dates[1]:
-                return Response(data={'message': 'error',
-                                      'error': 'Check that both dates are filled'},
-                                status=status.HTTP_400_BAD_REQUEST)
-            from_date = datetime.datetime.strptime(dates[0], '%Y-%m-%d')
-            till_date = datetime.datetime.strptime(dates[1], '%Y-%m-%d')
-            if till_date < from_date:
-                return Response(data={'message': 'error',
-                                      'error': 'Check that "From" date is less than "Till" date'},
-                                status=status.HTTP_400_BAD_REQUEST)
-            queryset = get_period_queryset(self.request.user, time_period, from_date, till_date)
-        else:
-            queryset = get_period_queryset(self.request.user, time_period)
-        chart = draw_pie_chart(queryset)
-        return HttpResponse(chart, content_type="image/png")
-
-
-class GetExpensesBarImage(APIView):
-    def get(self, request):
-        time_period = self.request.GET.get('period', '')
-        if ':' in time_period:
-            dates = time_period.split(':')
-            if not dates[0] or not dates[1]:
-                return Response(data={'message': 'error',
-                                      'error': 'Check that both dates are filled'},
-                                status=status.HTTP_400_BAD_REQUEST)
-            from_date = datetime.datetime.strptime(dates[0], '%Y-%m-%d')
-            till_date = datetime.datetime.strptime(dates[1], '%Y-%m-%d')
-            if till_date < from_date:
-                return Response(data={'message': 'error',
-                                      'error': 'Check that "From" date is less than "Till" date'},
-                                status=status.HTTP_400_BAD_REQUEST)
-            queryset = get_period_queryset(self.request.user, time_period, from_date, till_date)
-        else:
-            queryset = get_period_queryset(self.request.user, time_period)
-        chart = draw_column_chart(queryset)
-        return HttpResponse(chart, content_type="image/png")

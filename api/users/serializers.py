@@ -8,8 +8,8 @@ class RegisterSerializer(serializers.ModelSerializer):
                                      validators=[UniqueValidator(queryset=User.objects.all(),
                                                                  message='This username already exists')])
     email = serializers.EmailField(max_length=100,
-                                  validators=[UniqueValidator(queryset=User.objects.all(),
-                                                              message='This email is already taken')])
+                                   validators=[UniqueValidator(queryset=User.objects.all(),
+                                                               message='This email is already taken')])
     password = serializers.CharField(write_only=True, max_length=50, min_length=5)
     password_rep = serializers.CharField(write_only=True, max_length=50, min_length=5)
     agreement = serializers.CharField(required=True)

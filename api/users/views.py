@@ -9,9 +9,6 @@ from rest_framework.views import APIView
 from .serializers import RegisterSerializer, LoginSerializer
 
 
-# TODO add Try/Except to all views
-# TODO csrf protect all views where user have not to be logged in
-
 @method_decorator(csrf_protect, name='dispatch')
 class CreateUser(APIView):
     model = User

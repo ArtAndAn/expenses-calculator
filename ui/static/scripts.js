@@ -332,8 +332,8 @@ function create_expenses_page(period) {
             remove_prev_data()
 
             expenses_div.className = 'expenses_div'
-            const round_image_url = 'http://0.0.0.0:8000/expenses/expenses/roundimage?period=' + period
-            const bar_image_url = 'http://0.0.0.0:8000/expenses/expenses/barimage?period=' + period
+            const round_image_url = 'http://0.0.0.0:8000/expenses/roundimage?period=' + period
+            const bar_image_url = 'http://0.0.0.0:8000/expenses/barimage?period=' + period
             expenses_div.insertAdjacentHTML('beforeend',
                 '<img src="' + round_image_url + '" alt="Expenses round chart">')
             expenses_div.insertAdjacentHTML('beforeend',

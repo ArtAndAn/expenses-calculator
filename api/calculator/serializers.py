@@ -6,6 +6,11 @@ from .models import Category, UserExpenses
 
 
 class CategoryRelatedField(serializers.SlugRelatedField):
+    """
+    Class for correct creation categories queryset for each user
+    Will be called on creation of new UserExpenses in order to put correct Category in UserExpenses.model
+    """
+
     def get_queryset(self):
         queryset = Category.objects.all()
         request = self.context.get('request', None)
@@ -19,6 +24,9 @@ class CategorySerializer(serializers.ModelSerializer):
     name = serializers.CharField(max_length=50, required=True)
 
     def validate(self, attrs):
+        """
+        Sending validation error msg to client if he is trying to register category that he already has
+        """
         default_user = User.objects.get(username='default')
         if Category.objects.filter(Q(user=attrs['user']) | Q(user=default_user)).filter(name=attrs['name']):
             raise serializers.ValidationError({attrs['name']: 'You already have this category.'})
@@ -39,6 +47,3 @@ class ExpensesSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserExpenses
         fields = ('category', 'spend', 'date', 'user')
-
-    def validate(self, attrs):
-        pass
