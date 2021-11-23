@@ -443,5 +443,5 @@ function get_time_period_data(button) {
 }
 
 
-const API_URL = 'http://0.0.0.0:8000'
+const API_URL = 'https://expenses-calc-api.herokuapp.com'
 let user_data
