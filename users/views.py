@@ -9,8 +9,8 @@ from rest_framework.views import APIView
 from .serializers import RegisterSerializer, LoginSerializer
 
 
-@method_decorator(csrf_protect, name='dispatch')
 @csrf_exempt
+@method_decorator(csrf_protect, name='dispatch')
 class CreateUser(APIView):
     model = User
     serializer_class = RegisterSerializer
@@ -28,8 +28,8 @@ class CreateUser(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
 
-@method_decorator(csrf_protect, name='dispatch')
 @csrf_exempt
+@method_decorator(csrf_protect, name='dispatch')
 class LoginUser(APIView):
     serializer_class = LoginSerializer
     permission_classes = (permissions.AllowAny,)
