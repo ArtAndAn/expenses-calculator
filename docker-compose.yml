@@ -1,0 +1,54 @@
+networks:
+  expenses_calc_network:
+    driver: bridge
+    name: expenses_calc
+
+services:
+  postgres:
+    image: postgres
+    networks:
+      - expenses_calc_network
+    ports:
+      - 5432:5432
+    env_file:
+      - ./conf/db/db.env
+  api:
+    image: expenses-calc-api
+    command: >
+      sh -c "python3 manage.py collectstatic --noinput &&
+             python3 manage.py migrate &&
+             python3 manage.py runserver 0.0.0.0:8000"
+    networks:
+      - expenses_calc_network
+    ports:
+      - 8000:8000
+    env_file:
+      - ./conf/db/api-ui.env
+    depends_on:
+      - postgres
+    restart: on-failure
+  ui:
+    image: expenses-calc-ui
+    command: >
+      sh -c "python3 manage.py runserver 0.0.0.0:7000"
+    networks:
+      - expenses_calc_network
+    ports:
+      - 7000:7000
+    env_file:
+      - ./conf/db/api-ui.env
+    depends_on:
+      - api
+  nginx:
+    image: nginx
+    networks:
+      - expenses_calc_network
+    ports:
+      - 80:9000
+    depends_on:
+      - api
+      - ui
+    volumes:
+      - ./conf/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./api/static/:/opt/static/api
+      - ./ui/static:/opt/static/ui

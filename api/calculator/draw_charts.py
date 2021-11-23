@@ -12,11 +12,10 @@ def draw_pie_chart(expenses):
 
     categories = sorted_queryset.keys()
     values = [value for value in sorted_queryset.values()]
-
-    max_value_index = values.index(max(values))
-
+    if not values:
+        return None
     explode = [0 for x in values]
-    explode[max_value_index] = 0.1
+    explode[0] = 0.1
     fig, ax = plt.subplots()
     ax.pie(values, explode=explode, labels=categories,
            autopct='%1.1f%%', shadow=True)
