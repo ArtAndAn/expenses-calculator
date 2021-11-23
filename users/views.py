@@ -9,7 +9,6 @@ from rest_framework.views import APIView
 from .serializers import RegisterSerializer, LoginSerializer
 
 
-@csrf_exempt
 @method_decorator(csrf_protect, name='dispatch')
 class CreateUser(APIView):
     model = User
@@ -28,7 +27,6 @@ class CreateUser(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
 
-@csrf_exempt
 @method_decorator(csrf_protect, name='dispatch')
 class LoginUser(APIView):
     serializer_class = LoginSerializer
