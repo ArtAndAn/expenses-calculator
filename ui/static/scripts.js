@@ -361,8 +361,8 @@ function create_expenses_page(period) {
 
                 remove_prev_data_expenses_page()
 
-                const round_image_url = 'http://0.0.0.0:8000/expenses/roundimage?period=' + period
-                const bar_image_url = 'http://0.0.0.0:8000/expenses/barimage?period=' + period
+                const round_image_url = API_URL + '/expenses/roundimage?period=' + period
+                const bar_image_url = API_URL + '/expenses/barimage?period=' + period
                 expenses_div.insertAdjacentHTML('beforeend',
                     '<img src="' + round_image_url + '" alt="Expenses round chart">')
                 expenses_div.insertAdjacentHTML('beforeend',
@@ -375,9 +375,10 @@ function create_expenses_page(period) {
             } else {
                 const expenses_div = document.getElementById('expenses-div')
                 expenses_div.className = 'expenses_div'
-
-                expenses_div.insertAdjacentHTML('afterbegin',
-                    '<h2 class="mt-5">Sorry, but tou don\'t have any expenses yet</h2>')
+                if (!expenses_div.hasChildNodes()) {
+                    expenses_div.insertAdjacentHTML('afterbegin',
+                        '<h2 class="mt-5">Sorry, but tou don\'t have any expenses yet</h2>')
+                }
             }
 
         } else {
