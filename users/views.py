@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
+from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie, csrf_exempt
 from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -10,6 +10,7 @@ from .serializers import RegisterSerializer, LoginSerializer
 
 
 @method_decorator(csrf_protect, name='dispatch')
+@csrf_exempt
 class CreateUser(APIView):
     model = User
     serializer_class = RegisterSerializer
@@ -28,6 +29,7 @@ class CreateUser(APIView):
 
 
 @method_decorator(csrf_protect, name='dispatch')
+@csrf_exempt
 class LoginUser(APIView):
     serializer_class = LoginSerializer
     permission_classes = (permissions.AllowAny,)
