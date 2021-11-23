@@ -32,6 +32,9 @@ CORS_REPLACE_HTTPS_REFERER = True
 CSRF_TRUSTED_ORIGINS = [
     'https://calculate-your-expenses.herokuapp.com',
 ]
+CSRF_COOKIE_NAME = 'csrftoken'
+CSRF_HEADER_NAME = 'HTTP_X-CSRFToken'
+
 
 # Application definition
 INSTALLED_APPS = [
