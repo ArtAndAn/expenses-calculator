@@ -138,6 +138,7 @@ function login_button_event_listener() {
     btn.addEventListener('click', function () {
         const form_data = new FormData();
 
+        form_data.append('csrfmiddlewaretoken', document.getElementsByName('csrfmiddlewaretoken')[0].value)
         form_data.append('username', form.username.value)
         form_data.append('password', form.password.value)
 
